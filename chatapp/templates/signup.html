@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta content="width=device-width,initial-scale=1,minimal-ui" name="viewport">
+		<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700,400italic|Material+Icons">
+		<link rel="stylesheet" href="https://unpkg.com/vue-material/dist/vue-material.min.css">
+		<link rel="stylesheet" href="https://unpkg.com/vue-material/dist/theme/default.css">
+	</head>
+	<body>
+		<div id='app'>
+			<md-app>
+				<md-app-toolbar class="md-primary">
+      	  <span class="md-title">Chat App</span>
+      	</md-app-toolbar>
+				<md-app-content>
+					<form novalidate class="md-layout" @submit.prevent="validateUser">
+						<md-card class="md-layout-item md-size-50 md-small-size-100" style="margin: 50px auto;">
+							<md-card-header>
+								<div class="md-title">アカウント作成</div>
+								<div style="color: red;">{{ error }}</div>
+							</md-card-header>
+
+							<md-card-content>
+								<md-field :class="getValidationClass('username')">
+									<label for="username">ユーザー名</label>
+									<md-input name="username" id="username" autocomplete="username" v-model="form.username" :disabled="sending" />
+										<span class="md-error" v-if="!$v.form.username.required">ユーザー名を入力してください</span>
+										<span class="md-error" v-else-if="!$v.form.username.minlength">ユーザー名が短すぎます</span>
+								</md-field>
+
+								<md-field :class="getValidationClass('password')">
+									<label for="password">パスワード</label>
+									<md-input name="password" id="password" autocomplete="password" type="password" v-model="form.password" :disabled="sending" />
+										<span class="md-error" v-if="!$v.form.password.required">パスワードを入力してください</span>
+										<span class="md-error" v-else-if="!$v.form.password.minlength">パスワードが短すぎます</span>
+								</md-field>
+							</md-card-content>
+
+
+							<md-card-actions>
+								<md-button type="submit"  class="md-primary" :disabled="sending">Create user</md-button>
+							</md-card-actions>
+
+							<md-progress-bar md-mode="indeterminate" v-if="sending" />
+
+						</md-card>
+					</form>
+				</md-app-content>
+			</md-app>
+		</div>
+
+		<script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+		<script src="https://unpkg.com/vue-material"></script>
+		<script src="https://unpkg.com/vuelidate/dist/validators.min.js"></script>
+		<script src="https://unpkg.com/vuelidate/dist/vuelidate.min.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/vue-resource@1.5.1"></script>
+		<script>
+			Vue.use(VueMaterial.default)
+			Vue.use(window.vuelidate.default);
+			const { validationMixin } = window.vuelidate
+			const { required,minLength } = window.validators
+			new Vue({
+				el: '#app',
+				mixins: [validationMixin],
+				data: () => ({
+					form: {
+						username: null,
+						password: null
+					},
+					sending: false,
+					userSaved: false
+				}),
+				validations: {
+    		  form: {
+    		    username: {
+    		      required,
+    		      minLength: minLength(6)
+    		    },
+    		    password: {
+    		      required,
+    		      minLength: minLength(6)
+    		    }
+    		  }
+    		},
+				methods: {
+					getValidationClass(fieldName) {
+						const field = this.$v.form[fieldName]
+			
+						if (field) {
+							return {
+								'md-invalid': field.$invalid && field.$dirty
+							}
+						}
+					},
+					clearForm () {
+      		  this.$v.$reset()
+      		  this.form.username = null
+      		  this.form.password = null
+      		},
+      		saveUser () {
+      		  this.sending = true
+
+						this.$http.post('http://localhost:5000/signup', this.form).then(
+							res => {
+								this.userSaved = true
+      		    	this.sending = false
+      		    	this.clearForm()
+							},
+							err => {
+								this.userSaved = true
+      		    	this.sending = false
+      		    	this.clearForm()
+							}
+						);
+      		},
+      		validateUser () {
+      		  this.$v.$touch()
+
+      		  if (!this.$v.$invalid) {
+      		    this.saveUser()
+      		  }
+      		}
+				}
+			})
+		</script>
+	</body>
+</html>

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta content="width=device-width,initial-scale=1,minimal-ui" name="viewport">
+		<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700,400italic|Material+Icons">
+		<link rel="stylesheet" href="https://unpkg.com/vue-material/dist/vue-material.min.css">
+		<link rel="stylesheet" href="https://unpkg.com/vue-material/dist/theme/default.css">
+	</head>
+	<body>
+		<div id='app'>
+			<md-app>
+				<md-app-toolbar class="md-primary">
+      	  <span class="md-title">Chat App</span>
+      	</md-app-toolbar>
+				<md-app-content class="md-layout">
+					<div class="md-layout-item md-size-50 md-small-size-100" style="margin: 50px auto;">
+						<md-list>
+							<md-list-item header><h3>ルーム一覧</h3></md-list-item>
+							{% for room in rooms %}
+							<md-list-item href="http://localhost:5000/room/{{ room['_id'] }}">{{ room['name'] }}</md-list-item>
+							{% endfor %}
+						</md-list>
+					</div>
+					<md-button class="md-fab-bottom-right md-fab md-primary" @click="showDialog = true">
+      		  <md-icon>add</md-icon>
+      		</md-button>
+					<md-dialog :md-active.sync="showDialog">
+							<form novalidate class="md-layout" @submit.prevent="validateRoom" style="padding: 5px;">
+									<div class="md-title">ルーム作成</div>
+									<md-field :class="getValidationClass('roomname')">
+										<label for="roomname">ルーム名</label>
+										<md-input name="roomname" id="roomname" autocomplete="roomname" v-model="form.roomname" />
+											<span class="md-error" v-if="!$v.form.roomname.required">ルーム名を入力してください</span>
+											<span class="md-error" v-else-if="!$v.form.roomname.minlength">ルーム名が短すぎます</span>
+									</md-field>
+
+									<md-dialog-actions>
+										<md-button class="md-primary" @click="showDialog = false">Close</md-button>
+										<md-button class="md-primary" type="submit">Send</md-button>
+									</md-dialog-actions>
+							</form>
+					</md-dialog>
+				</md-app-content>
+			</md-app>
+		</div>
+
+		<script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+		<script src="https://unpkg.com/vue-material"></script>
+		<script src="https://unpkg.com/vuelidate/dist/validators.min.js"></script>
+		<script src="https://unpkg.com/vuelidate/dist/vuelidate.min.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/vue-resource@1.5.1"></script>
+		<script>
+			Vue.use(VueMaterial.default);
+			Vue.use(window.vuelidate.default);
+			const { validationMixin } = window.vuelidate
+			const { required,minLength } = window.validators
+			new Vue({
+				el: '#app',
+				mixins: [validationMixin],
+				data: () => ({
+					showDialog: false,
+					form: {
+						roomname: null,
+					},
+				}),
+				validations: {
+    		  form: {
+    		    roomname: {
+    		      required,
+    		      minLength: minLength(1)
+    		    }
+    		  }
+    		},
+				methods: {
+					openDialog() {
+						this.$http.get('http://localhost:5000/getusers').then(
+							res => {
+								console.log(res)
+								this.showDialog = true;
+							}
+						);
+					},
+					saveRoom() {
+						this.$http.get('http://localhost:5000/getuser').then(
+							res => {
+								this.$http.post('http://localhost:5000/', {'roomname': this.form.roomname, 'member': [res.data.user_id]}).then(
+									res => {
+										this.showDialog = false;
+									}
+								);
+							}
+						);
+					},
+					getValidationClass(fieldName) {
+						const field = this.$v.form[fieldName]
+			
+						if (field) {
+							return {
+								'md-invalid': field.$invalid && field.$dirty
+							}
+						}
+					},
+      		validateRoom () {
+      		  this.$v.$touch()
+
+      		  if (!this.$v.$invalid) {
+      		    this.saveRoom()
+      		  }
+      		}
+				}
+			})
+		</script>
+	</body>
+</html>

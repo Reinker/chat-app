@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta content="width=device-width,initial-scale=1,minimal-ui" name="viewport">
+		<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700,400italic|Material+Icons">
+		<link rel="stylesheet" href="https://unpkg.com/vue-material/dist/vue-material.min.css">
+		<link rel="stylesheet" href="https://unpkg.com/vue-material/dist/theme/default.css">
+		<script src="https://cdn.jsdelivr.net/npm/vue-resource@1.5.1"></script>
+	</head>
+	<body>
+		<div id='app'>
+			<md-app>
+				<md-app-toolbar class="md-primary">
+      	  <span class="md-title">Chat App</span>
+      	</md-app-toolbar>
+				<md-app-content>
+					<div style="margin-bottom: 100px;" id="chats">
+						{% for chat in room['chats'] %}
+							{% if chat['user_id'] == user_id %}
+								<div style="text-align: right; margin: 10px;">
+									<div>
+										{{ chat['chat'] }}
+									</div>
+									<small>
+										{{ chat['user_name'] }}
+									</small>
+								</div>
+							{% else %}
+								<div style="text-align: left; margin: 10px;">
+									<div>
+										{{ chat['chat'] }}
+									</div>
+									<div>
+										{{ chat['user_name'] }}
+									</div>
+								</div>
+							{% endif %}
+						{% endfor %}
+					</div>
+					<md-button class="md-fab-bottom-right md-fab md-primary" @click="showDialog = true">
+      		  <md-icon>add</md-icon>
+      		</md-button>
+					<md-dialog :md-active.sync="showDialog">
+						<md-field>
+    				  <md-textarea v-model="chat"></md-textarea>
+    				</md-field>
+						<md-dialog-actions>
+      			  <md-button class="md-primary" @click="showDialog = false">Close</md-button>
+							<md-button class="md-primary" @click="onSendClick">Send</md-button>
+      			</md-dialog-actions>
+					</md-dialog>
+				</md-app-content>
+			</md-app>
+		</div>
+
+		<script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+		<script src="https://unpkg.com/vue-material"></script>
+		<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/3.0.5/socket.io.js"></script>
+		<script>
+			const socket = io();
+			
+			socket.on('connect', function (event) {
+					console.log('Hello server!');
+			    socket.emit('send', 'Hello Server!');
+			});
+			
+			socket.on('receive', function (event) {
+				axios.get('http://localhost:5000/getuser').then(
+					res => {
+						if(event.user_id == res.data.user_id) {
+							document.getElementById('chats').innerHTML += '<div style="text-align: right; margin: 10px">' + event.chat + '</div>';
+						} else {
+							document.getElementById('chats').innerHTML += '<div style="text-align: left; margin: 10px">' + event.chat + '</div>';
+						}
+					}
+				)
+			});
+	
+			Vue.use(VueMaterial.default);
+			new Vue({
+				el: '#app',
+				data: () => ({
+					showDialog: false,
+					userId: null,
+					username: null,
+					chat: null,
+					roomInfo: {
+						chats: [],
+						id: null
+					}
+				}),
+				methods: {
+					onSendClick() {
+						if(this.chat == null || this.chat == '') {
+							return;
+						}
+						axios.get('http://localhost:5000/getuser').then(
+							res => {
+								this.userId = res.data.user_id;
+								this.username = res.data.username;
+								const roomId = window.location.href.substring(window.location.href.lastIndexOf('/') + 1);
+								socket.emit('send', {room_id: roomId,user_id: this.userId, username: this.username, chat: this.chat});
+								this.chat = null;
+								this.showDialog = false;
+							}
+						);
+					}
+				},
+				delimiters: ['[[', ']]']
+			})
+		</script>
+	</body>
+</html>

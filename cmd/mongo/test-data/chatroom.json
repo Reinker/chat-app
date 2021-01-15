@@ -1,0 +1,48 @@
+[
+	{
+    _id: ObjectId('5ffeff99b93ea00008a5e0a8'),
+    name: 'test',
+    date: ISODate('2021-01-13T14:11:37.395Z'),
+    member: [
+        '5fff0270b93ea00008a5e0aa',
+        '5fff0297b93ea00008a5e0ac'
+    ],
+    chats: [
+        {
+            user_id: '5fff0270b93ea00008a5e0aa',
+            user_name: 'user1',
+            chat: 'hello world',
+            date: ISODate('2021-01-13T14:11:37.395Z')
+        },
+        {
+            user_id: '5fff0297b93ea00008a5e0ac',
+            user_name: 'user2',
+            chat: 'hello world2',
+            date: ISODate('2021-01-13T14:11:37.395Z')
+        }
+    ]
+	},
+	{
+    _id: ObjectId('5fff038db93ea00008a5e0b0'),
+    name: 'test2',
+    date: ISODate('2021-01-13T14:28:29.565Z'),
+    member: [
+        '5fff02b0b93ea00008a5e0ae',
+        '5fff0297b93ea00008a5e0ac'
+    ],
+    chats: [
+        {
+            user_id: '5fff02b0b93ea00008a5e0ae',
+            user_name: 'user3',
+            chat: 'hello world',
+            date: ISODate('2021-01-13T14:28:29.565Z')
+        },
+        {
+            user_id: '5fff0297b93ea00008a5e0ac',
+            user_name: 'user2',
+            chat: 'hello world2',
+            date: ISODate('2021-01-13T14:28:29.565Z')
+        }
+    ]
+	}
+]

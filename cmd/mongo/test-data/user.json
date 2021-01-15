@@ -1,0 +1,20 @@
+[
+	{
+    _id: ObjectId('5fff0270b93ea00008a5e0aa'),
+    name: 'user1',
+    password: 'password',
+    date: ISODate('2021-01-13T14:23:44.528Z')
+	},
+	{
+    _id: ObjectId('5fff0297b93ea00008a5e0ac'),
+    name: 'user2',
+    password: 'password',
+    date: ISODate('2021-01-13T14:24:23.978Z')
+	},
+	{
+    _id: ObjectId('5fff02b0b93ea00008a5e0ae'),
+    name: 'user3',
+    password: 'password',
+    date: ISODate('2021-01-13T14:24:48.783Z')
+	}
+]

@@ -1,0 +1,6 @@
+/__pycache__
+/chatapp/__pycache__/
+/chatapp/db/__pycache__/
+/cmd/mongo/db/
+/cmd/mongo/data/
+
