@@ -6,9 +6,16 @@
 + Vue.js
 
 ## 環境構築
+### Pythonライブラリのインストール
 ```
 ~$ pip install -r requirements.txt
 ```
+
+### Docker
+```
+~$ docker-compose up --build -d
+```
+MongoDBの立ち上げを行う。Expressでデータ操作可能。
 
 ## できること
 + ユーザー作成
